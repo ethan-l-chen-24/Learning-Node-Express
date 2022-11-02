@@ -1,12 +1,29 @@
 const express = require('express');
+const path = require('path');
 
+// init app
 const app = express();
 
+// load view engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+// home route
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.render('index', {
+        title: 'Index'
+    });
     console.log('Someone logged on');
 })
 
+// add route
+app.get('/articles/add', (req, res) => {
+    res.render('addArticle', {
+        title: 'Add Article'
+    })
+})
+
+// start server
 app.listen(3000, () => {
     console.log('Server started on port 3000...');
 })
