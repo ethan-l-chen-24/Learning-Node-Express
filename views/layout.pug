@@ -2,9 +2,12 @@ doctype html
 html 
     head 
         title #{title}
+        link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.css')
     body 
-        block content
-        br
-        hr
-        footer 
-            p Copyright &copy; 2017
+
+        .container
+            block content
+            br
+            hr
+            footer 
+                p Copyright &copy; 2017
