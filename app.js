@@ -9,7 +9,7 @@ let db = mongoose.connection;
 // check connection
 db.once('open', () => {
     console.log('Connected to MongoDB');
-})
+});
 
 // check for DB errors
 db.on('error', (err) => {
@@ -90,6 +90,15 @@ app.get('/articles/add', (req, res) => {
     })
 })
 
+// get single article
+app.get('/article/:id', (req, res) => {
+    Article.findById(req.params.id, (err, article) => {
+        res.render('article', {
+            article: article
+        })
+    })
+})
+
 // add submit POST route
 app.post('/articles/add', (req, res) => {
     let article = new Article();
@@ -108,6 +117,34 @@ app.post('/articles/add', (req, res) => {
 
     console.log(`added ${article.title}`);
     return;
+})
+
+// add submit POST route for edit
+app.post('/articles/edit/:id', (req, res) => {
+    let article = {};
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+
+    let query = {_id:req.params.id};
+
+    Article.updateOne(query, article, (err) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.redirect('/')
+        }
+    });
+
+});
+
+// add edit route 
+app.get('/articles/edit/:id', (req, res) => {
+    Article.findById(req.params.id, (err, article) => {
+        res.render('editArticle', {
+            article: article
+        })
+    })
 })
 
 // start server
