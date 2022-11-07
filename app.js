@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const flash = require('connect-flash');
+const expressValidator = require('express-validator');
 
 mongoose.connect('mongodb://localhost/nodekb');
 let db = mongoose.connection;
@@ -28,6 +31,42 @@ app.use(bodyParser.json());
 
 // Set public folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+// express session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}));
+
+// express messages middleware
+app.use(flash);
+app.use((req, res, next) => {
+    res.locals.messages = require('express-messages')(req, res);
+    next();
+})
+
+// express validator middleware
+app.use(expressValidator({
+    errorFormatter: function(param, msg, value) {
+        var namespace = param.split('.')
+        , root = namespace.shift()
+        , formParam = root;
+    
+        while(namespace.length) {
+            formParam += '[' + namespace.shift() + ']';
+        }
+
+        return {
+            param : formParam,
+            msg : msg,
+            value : value
+        };
+    }
+}));
+
+
  
 // load view engine
 app.set('views', path.join(__dirname, 'views'));
@@ -111,6 +150,7 @@ app.post('/articles/add', (req, res) => {
             console.log(err);
             return;
         } else {
+            req.flash('success', 'article added');
             res.redirect('/');
         }
     })
@@ -132,6 +172,7 @@ app.post('/articles/edit/:id', (req, res) => {
         if(err) {
             console.log(err);
         } else {
+            req.flash('success', 'article edited');
             res.redirect('/')
         }
     });
